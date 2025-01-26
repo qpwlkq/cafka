@@ -8,6 +8,7 @@ import (
 	"os"
 	"unsafe"
 
+	"github.com/codecrafters-io/kafka-starter-go/app/handler"
 	"github.com/codecrafters-io/kafka-starter-go/app/model"
 )
 
@@ -33,12 +34,18 @@ func main() {
 	conn.Read(buf)
 	request := ByteToRequestInBigEndian(buf)
 
+	responseBytes, err := handler.Handle(request)
+	if err == nil {
+		conn.Write(responseBytes)
+		return
+	}
+
 	// print: 00000023001200046f7fc66100096b61666b612d636c69000a6b61666b612d636c6904302e310000
-	fmt.Println(hex.EncodeToString(buf))
+	// fmt.Println(hex.EncodeToString(buf))
 
 	// print: 2300000000000000001261c661c67f6f000000000000000000000000000000000000000000000000
 	// !!!!!!! 计算机存储使用小端序, 但是 tcp网络传输使用大端序!
-	fmt.Println(hex.EncodeToString(RequestToByte(&request)))
+	// fmt.Println(hex.EncodeToString(RequestToByte(&request)))
 
 	response := model.Message{
 		Header: model.HeaderV0{
@@ -60,8 +67,8 @@ func ByteToRequest(b []byte) (request model.Request) {
 // []byte => request in bigEndian
 func ByteToRequestInBigEndian(b []byte) (request model.Request) {
 	request.MessageSize = int32(binary.BigEndian.Uint32(b[0:4]))
-	request.Header.RequestApiKey = int16(binary.BigEndian.Uint16(b[5:9]))
-	request.Header.RequestApiVersion = int16(binary.BigEndian.Uint16(b[10:14]))
+	request.Header.RequestApiKey = int16(binary.BigEndian.Uint16(b[4:6]))
+	request.Header.RequestApiVersion = int16(binary.BigEndian.Uint16(b[6:8]))
 	request.Header.CorrelationId = int32(binary.BigEndian.Uint32(b[8:13]))
 	return
 }

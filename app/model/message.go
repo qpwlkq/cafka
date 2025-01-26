@@ -2,14 +2,14 @@ package model
 
 type Message struct {
 	MessageSize int32
-	Header       HeaderV0
-	Body         Body
+	Header      HeaderV0
+	Body        Body
 }
 
 type Request struct {
 	MessageSize int32
-	Header       HeaderV2
-	Body         Body
+	Header      HeaderV2
+	Body        Body
 }
 
 type HeaderV0 struct {
@@ -19,8 +19,8 @@ type HeaderV0 struct {
 type HeaderV2 struct {
 	RequestApiKey     int16
 	RequestApiVersion int16
-	CorrelationId      int32
-	ClientId           string
+	CorrelationId     int32
+	ClientId          string
 }
 
 type MockSlice struct {
