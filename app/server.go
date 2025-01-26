@@ -7,6 +7,8 @@ import (
 	"net"
 	"os"
 	"unsafe"
+
+	"github.com/codecrafters-io/kafka-starter-go/app/model"
 )
 
 // Ensures gofmt doesn't remove the "net" and "os" imports in stage 1 (feel free to remove this!)
@@ -38,9 +40,9 @@ func main() {
 	// !!!!!!! 计算机存储使用小端序, 但是 tcp网络传输使用大端序!
 	fmt.Println(hex.EncodeToString(RequestToByte(&request)))
 
-	response := Message{
-		header: HeaderV0{
-			correlation_id: request.header.correlation_id,
+	response := model.Message{
+		Header: model.HeaderV0{
+			CorrelationId: request.Header.CorrelationId,
 		},
 	}
 	response_byte := MessageToByteInBigEndian(&response)
@@ -50,28 +52,28 @@ func main() {
 }
 
 // []byte => request by pointer conversion
-func ByteToRequest(b []byte) (request Request) {
-	request = *(*(**Request)(unsafe.Pointer(&b)))
+func ByteToRequest(b []byte) (request model.Request) {
+	request = *(*(**model.Request)(unsafe.Pointer(&b)))
 	return
 }
 
 // []byte => request in bigEndian
-func ByteToRequestInBigEndian(b []byte) (request Request) {
-	request.message_size = int32(binary.BigEndian.Uint32(b[0:4]))
-	request.header.request_api_key = int16(binary.BigEndian.Uint16(b[5:9]))
-	request.header.request_api_version = int16(binary.BigEndian.Uint16(b[10:14]))
-	request.header.correlation_id = int32(binary.BigEndian.Uint32(b[8:13]))
+func ByteToRequestInBigEndian(b []byte) (request model.Request) {
+	request.MessageSize = int32(binary.BigEndian.Uint32(b[0:4]))
+	request.Header.RequestApiKey = int16(binary.BigEndian.Uint16(b[5:9]))
+	request.Header.RequestApiVersion = int16(binary.BigEndian.Uint16(b[10:14]))
+	request.Header.CorrelationId = int32(binary.BigEndian.Uint32(b[8:13]))
 	return
 }
 
 // message => []byte in bigEndian
-func MessageToByteInBigEndian(message *Message) (b []byte) {
+func MessageToByteInBigEndian(message *model.Message) (b []byte) {
 	b = make([]byte, unsafe.Sizeof(*message))
-	correlation_id_size := unsafe.Sizeof(message.header.correlation_id)
+	correlation_id_size := unsafe.Sizeof(message.Header.CorrelationId)
 	fmt.Println(correlation_id_size)     // 4
 	fmt.Println(unsafe.Sizeof(*message)) // 12 ????
 	buf := make([]byte, correlation_id_size)
-	binary.BigEndian.PutUint32(buf, uint32(message.header.correlation_id))
+	binary.BigEndian.PutUint32(buf, uint32(message.Header.CorrelationId))
 	for i := 0; i < 4; i++ {
 		b[4+i] = buf[i]
 	}
@@ -79,24 +81,24 @@ func MessageToByteInBigEndian(message *Message) (b []byte) {
 }
 
 // message => byte by pointer conversion
-func MessageToByte(message_ptr *Message) (b []byte) {
+func MessageToByte(message_ptr *model.Message) (b []byte) {
 	len := unsafe.Sizeof(*message_ptr)
-	mock_slice := &MockSlice{
-		array: uintptr(unsafe.Pointer(message_ptr)),
-		cap:   int(len),
-		len:   int(len),
+	mock_slice := &model.MockSlice{
+		Array: uintptr(unsafe.Pointer(message_ptr)),
+		Cap:   int(len),
+		Len:   int(len),
 	}
 	b = *(*[]byte)(unsafe.Pointer(mock_slice))
 	return
 }
 
 // request => byte by pointer conversion
-func RequestToByte(request_ptr *Request) (b []byte) {
+func RequestToByte(request_ptr *model.Request) (b []byte) {
 	len := unsafe.Sizeof(*request_ptr)
-	mock_slice := &MockSlice{
-		array: uintptr(unsafe.Pointer(request_ptr)),
-		cap:   int(len),
-		len:   int(len),
+	mock_slice := &model.MockSlice{
+		Array: uintptr(unsafe.Pointer(request_ptr)),
+		Cap:   int(len),
+		Len:   int(len),
 	}
 	b = *(*[]byte)(unsafe.Pointer(mock_slice))
 	return
