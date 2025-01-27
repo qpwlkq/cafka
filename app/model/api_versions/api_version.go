@@ -9,6 +9,11 @@ type Response struct {
 	MessageSize   int32
 	CorrelationId int32
 	ErrorCode     int16
+	Body Body
+}
+
+type Body struct {
+	
 }
 
 func (r Response) ToByte() (b []byte) {

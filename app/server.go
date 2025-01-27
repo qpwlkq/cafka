@@ -32,6 +32,7 @@ func main() {
 	}
 	buf := make([]byte, 40)
 	conn.Read(buf)
+	fmt.Println("input", buf)
 	request := ByteToRequestInBigEndian(buf)
 
 	responseBytes, err := handler.Handle(request)
