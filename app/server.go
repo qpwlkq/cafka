@@ -38,6 +38,7 @@ func main() {
 	responseBytes, err := handler.Handle(request)
 	if err == nil {
 		conn.Write(responseBytes)
+		fmt.Println("return")
 		return
 	}
 
