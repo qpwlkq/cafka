@@ -8,7 +8,7 @@
 
 module github.com/codecrafters-io/kafka-starter-go
 
-go 1.22
+go 1.22.0
 
 replace github.com/codecrafters-io/kafka-starter-go/app/model => ../model
 replace github.com/codecrafters-io/kafka-starter-go/app/model/api_versions => ../model/api_version
