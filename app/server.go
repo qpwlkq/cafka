@@ -8,6 +8,7 @@ import (
 	"os"
 	"unsafe"
 
+	"github.com/codecrafters-io/kafka-starter-go/app/handler"
 	"github.com/codecrafters-io/kafka-starter-go/app/model"
 )
 

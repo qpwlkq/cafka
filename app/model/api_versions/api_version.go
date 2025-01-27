@@ -6,30 +6,28 @@ import (
 )
 
 type Response struct {
-	MessageSize   int32
+	// MessageSize   int32
 	CorrelationId int32
 	ErrorCode     int16
-	Body Body
+	ApiKeys ApiKeys
+	ThrottleTimeMs int32
 }
 
-type Body struct {
-	
+type ApiKeys struct {
+	ApiKey int16
+	MinVersion int16
+	MaxVersion int16
 }
 
 func (r Response) ToByte() (b []byte) {
-	b = make([]byte, unsafe.Sizeof(r))
-	buf := make([]byte, 8)
+	buf := make([]byte, unsafe.Sizeof(r))
 
-	// set CorrelationId
 	binary.BigEndian.PutUint32(buf, uint32(r.CorrelationId))
-	for i := 0; i < 4; i++ {
-		b[4 + i] = buf[i]
-	}
+	binary.BigEndian.PutUint16(buf[4:], uint16(r.ErrorCode))
+	binary.BigEndian.PutUint16(buf[6:], uint16(r.ApiKeys.ApiKey))
+	binary.BigEndian.PutUint16(buf[8:], uint16(r.ApiKeys.MinVersion))
+	binary.BigEndian.PutUint16(buf[10:], uint16(r.ApiKeys.MaxVersion))
+	binary.BigEndian.PutUint32(buf[12:], uint32(r.ThrottleTimeMs))
 
-	// set ErrorCode
-	binary.BigEndian.PutUint16(buf, uint16(r.ErrorCode))
-	for i := 0; i < 2; i++ {
-		b[8 + i] = buf[i]
-	}
-	return
+	return buf
 }

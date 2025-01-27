@@ -17,9 +17,14 @@ func Handle(request model.Request) ([]byte, error) {
 	switch request.Header.RequestApiKey {
 	case ApiVersions:
 		apiVersionResponse := api_versions.Response{
-			MessageSize:   0,
 			CorrelationId: request.Header.CorrelationId,
-			ErrorCode:     35,
+			ErrorCode:     0,
+			ApiKeys:api_versions.ApiKeys{
+				ApiKey: 18,
+				MinVersion: 3,
+				MaxVersion: 4,
+			},
+			ThrottleTimeMs: 0,
 		}
 		fmt.Println("Handle ApiVersions api")
 		return apiVersionResponse.ToByte(), nil
