@@ -16,6 +16,7 @@ func Handle(request model.Request) ([]byte, error) {
 	fmt.Println("API VERSION KEY:", request.Header.RequestApiKey)
 	switch request.Header.RequestApiKey {
 	case ApiVersions:
+		fmt.Println("correlationId:", request.Header.CorrelationId)
 		apiVersionResponse := api_versions.Response{
 			Header: api_versions.Header{
 				CorrelationId: request.Header.CorrelationId,

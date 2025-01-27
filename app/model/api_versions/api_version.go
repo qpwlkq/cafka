@@ -32,12 +32,12 @@ func (r Response) ToByte() (b []byte) {
 	binary.BigEndian.PutUint16(buf[9:], uint16(r.ApiKeys.MinVersion))
 	binary.BigEndian.PutUint16(buf[11:], uint16(r.ApiKeys.MaxVersion))
 	buf[13] = 0
-	binary.BigEndian.PutUint32(buf[14:], uint32(r.ThrottleTimeMs))
+	binary.BigEndian.PutUint16(buf[14:], uint16(r.ThrottleTimeMs))
 	buf[18] = 0
 	fmt.Println("buf:", buf)
-	b = make([]byte, len(buf) + 4)
+	b = make([]byte, 4)
 	binary.BigEndian.PutUint32(b, uint32(len(buf)))
 	b = append(b, buf...)
-	fmt.Println("buf:", b)
+	fmt.Println("b:", b)
 	return
 }
