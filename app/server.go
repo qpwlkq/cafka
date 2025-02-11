@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/binary"
-	"encoding/hex"
 	"fmt"
 	"net"
 	"os"
@@ -30,34 +29,27 @@ func main() {
 		fmt.Println("Error accepting connection: ", err.Error())
 		os.Exit(1)
 	}
-	buf := make([]byte, 40)
-	conn.Read(buf)
-	fmt.Println("input", buf)
-	request := ByteToRequestInBigEndian(buf)
+	for {
+		buf := make([]byte, 40)
+		conn.Read(buf)
 
-	responseBytes, err := handler.Handle(request)
-	if err == nil {
-		conn.Write(responseBytes)
-		fmt.Println("return")
-		return
+		request := ByteToRequestInBigEndian(buf)
+
+		responseBytes, err := handler.Handle(request)
+		if err == nil {
+			conn.Write(responseBytes)
+			fmt.Println("return")
+			continue
+		}
+	
+		response := model.Message{
+			Header: model.HeaderV0{
+				CorrelationId: request.Header.CorrelationId,
+			},
+		}
+		response_byte := MessageToByteInBigEndian(&response)
+		conn.Write(response_byte)
 	}
-
-	// print: 00000023001200046f7fc66100096b61666b612d636c69000a6b61666b612d636c6904302e310000
-	// fmt.Println(hex.EncodeToString(buf))
-
-	// print: 2300000000000000001261c661c67f6f000000000000000000000000000000000000000000000000
-	// !!!!!!! 计算机存储使用小端序, 但是 tcp网络传输使用大端序!
-	// fmt.Println(hex.EncodeToString(RequestToByte(&request)))
-
-	response := model.Message{
-		Header: model.HeaderV0{
-			CorrelationId: request.Header.CorrelationId,
-		},
-	}
-	response_byte := MessageToByteInBigEndian(&response)
-	conn.Write(response_byte)
-
-	fmt.Println(hex.EncodeToString(response_byte))
 }
 
 // []byte => request by pointer conversion
