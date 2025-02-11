@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"time"
 	"unsafe"
 
 	"github.com/codecrafters-io/kafka-starter-go/app/handler"
@@ -24,11 +25,20 @@ func main() {
 		fmt.Println("Failed to bind to port 9092")
 		os.Exit(1)
 	}
-	conn, err := l.Accept()
-	if err != nil {
-		fmt.Println("Error accepting connection: ", err.Error())
-		os.Exit(1)
+
+	for {
+		conn, err := l.Accept()
+		fmt.Println("接收新连接: ", conn.RemoteAddr())
+		if err != nil {
+			fmt.Println("Error accepting connection: ", err.Error())
+			os.Exit(1)
+		}
+		go handleConn(conn)
 	}
+}
+
+func handleConn(conn net.Conn) {
+	defer conn.Close()
 	for {
 		buf := make([]byte, 40)
 		conn.Read(buf)
@@ -41,7 +51,7 @@ func main() {
 			fmt.Println("return")
 			continue
 		}
-	
+
 		response := model.Message{
 			Header: model.HeaderV0{
 				CorrelationId: request.Header.CorrelationId,
@@ -49,6 +59,7 @@ func main() {
 		}
 		response_byte := MessageToByteInBigEndian(&response)
 		conn.Write(response_byte)
+		time.Sleep(3 * time.Second)
 	}
 }
 
