@@ -3,6 +3,9 @@ package api_versions
 import (
 	"encoding/binary"
 	"fmt"
+
+	"github.com/codecrafters-io/kafka-starter-go/app/common"
+	"github.com/codecrafters-io/kafka-starter-go/app/model"
 )
 
 type Response struct {
@@ -50,4 +53,56 @@ func (r Response) ToByte() (b []byte) {
 	b = append(b, buf...)
 	fmt.Println("b:", b)
 	return
+}
+
+func Handle(request model.Request) ([]byte, error) {
+	fmt.Println("correlationId:", request.Header.CorrelationId, " ", request.Header.RequestApiVersion)
+	var apiVersionResponse Response
+	if request.Header.RequestApiVersion > 4 || request.Header.RequestApiVersion < 0 {
+		apiVersionResponse = Response{
+			Header: Header{
+				CorrelationId: request.Header.CorrelationId,
+			},
+			Body: Body{
+				ErrorCode: common.INVALID_REQUEST_API_VERSION,
+				ApiKeys: []ApiKey{
+					{
+						ApiKey:     common.ApiVersions,
+						MinVersion: 3,
+						MaxVersion: 4,
+					},
+					{
+						ApiKey:     common.DescribeTopicPartitions,
+						MinVersion: 0,
+						MaxVersion: 0,
+					},
+				},
+				ThrottleTimeMs: 666,
+			},
+		}
+	} else {
+		apiVersionResponse = Response{
+			Header: Header{
+				CorrelationId: request.Header.CorrelationId,
+			},
+			Body: Body{
+				ErrorCode: common.SUCCESS,
+				ApiKeys: []ApiKey{
+					{
+						ApiKey:     common.ApiVersions,
+						MinVersion: 3,
+						MaxVersion: 4,
+					},
+					{
+						ApiKey:     common.DescribeTopicPartitions,
+						MinVersion: 0,
+						MaxVersion: 0,
+					},
+				},
+				ThrottleTimeMs: 666,
+			},
+		}
+	}
+	fmt.Println("Handle ApiVersions api")
+	return apiVersionResponse.ToByte(), nil
 }
