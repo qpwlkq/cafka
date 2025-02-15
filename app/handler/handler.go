@@ -10,6 +10,7 @@ import (
 
 const (
 	ApiVersions = 18
+	DescribeTopicPartitions = 75
 )
 
 func Handle(request model.Request) ([]byte, error) {
@@ -27,9 +28,14 @@ func Handle(request model.Request) ([]byte, error) {
 					ErrorCode: 35,
 					ApiKeys: []api_versions.ApiKey{
 						{
-							ApiKey:     18,
+							ApiKey:     ApiVersions,
 							MinVersion: 3,
 							MaxVersion: 4,
+						},
+						{
+							ApiKey: DescribeTopicPartitions,
+							MinVersion: 0,
+							MaxVersion: 0,
 						},
 					},
 					ThrottleTimeMs: 0,
@@ -47,6 +53,11 @@ func Handle(request model.Request) ([]byte, error) {
 							ApiKey:     18,
 							MinVersion: 3,
 							MaxVersion: 4,
+						},
+						{
+							ApiKey: DescribeTopicPartitions,
+							MinVersion: 0,
+							MaxVersion: 0,
 						},
 					},
 					ThrottleTimeMs: 0,
