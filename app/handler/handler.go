@@ -13,6 +13,12 @@ const (
 	DescribeTopicPartitions = 75
 )
 
+const (
+	SUCCESS = 0
+	UNKNOWN_TOPIC_OR_PARTITION = 3
+	INVALID_REQUEST_API_VERSION = 35
+)
+
 func Handle(request model.Request) ([]byte, error) {
 	fmt.Println("API VERSION KEY:", request.Header.RequestApiKey)
 	switch request.Header.RequestApiKey {
@@ -25,7 +31,7 @@ func Handle(request model.Request) ([]byte, error) {
 					CorrelationId: request.Header.CorrelationId,
 				},
 				Body: api_versions.Body{
-					ErrorCode: 35,
+					ErrorCode: INVALID_REQUEST_API_VERSION,
 					ApiKeys: []api_versions.ApiKey{
 						{
 							ApiKey:     ApiVersions,
@@ -47,7 +53,7 @@ func Handle(request model.Request) ([]byte, error) {
 					CorrelationId: request.Header.CorrelationId,
 				},
 				Body: api_versions.Body{
-					ErrorCode: 0,
+					ErrorCode: SUCCESS,
 					ApiKeys: []api_versions.ApiKey{
 						{
 							ApiKey:     ApiVersions,
