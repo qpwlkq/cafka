@@ -19,7 +19,7 @@ func Handle(request model.Request) ([]byte, error) {
 	case ApiVersions:
 		fmt.Println("correlationId:", request.Header.CorrelationId, " ", request.Header.RequestApiVersion)
 		var apiVersionResponse api_versions.Response
-		if request.Header.RequestApiVersion > 4 {
+		if request.Header.RequestApiVersion > 4 || request.Header.RequestApiVersion < 0 {
 			apiVersionResponse = api_versions.Response{
 				Header: api_versions.Header{
 					CorrelationId: request.Header.CorrelationId,
