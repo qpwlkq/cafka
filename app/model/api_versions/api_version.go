@@ -28,20 +28,22 @@ type ApiKey struct {
 }
 
 func (r Response) ToByte() (b []byte) {
-	buf := make([]byte, 28)
+	buf := make([]byte, 26)
 	binary.BigEndian.PutUint32(buf, uint32(r.Header.CorrelationId))
 	binary.BigEndian.PutUint16(buf[4:], uint16(r.Body.ErrorCode))
 	apiKeyCount := len(r.Body.ApiKeys)
-	buf[6] = 2
+	buf[6] = byte(apiKeyCount + 1)
 	fmt.Println("apiKeyCount: ", apiKeyCount)
 	for i := 0; i < apiKeyCount; i++ {
-		binary.BigEndian.PutUint16(buf[7+6*i:], uint16(r.Body.ApiKeys[0].ApiKey))
-		binary.BigEndian.PutUint16(buf[7+6*i:], uint16(r.Body.ApiKeys[0].MinVersion))
-		binary.BigEndian.PutUint16(buf[11+6*i:], uint16(r.Body.ApiKeys[0].MaxVersion))
+		binary.BigEndian.PutUint16(buf[7+7*i:], uint16(r.Body.ApiKeys[i].ApiKey))
+		binary.BigEndian.PutUint16(buf[9+7*i:], uint16(r.Body.ApiKeys[i].MinVersion))
+		binary.BigEndian.PutUint16(buf[11+7*i:], uint16(r.Body.ApiKeys[i].MaxVersion))
+		buf[13+7*i] = 0
 	}
-	buf[7+6*apiKeyCount] = 0
-	binary.BigEndian.PutUint16(buf[20:], uint16(r.Body.ThrottleTimeMs))
-	buf[24] = 01
+	fmt.Println("ThrottleTimeMs: ", r.Body.ThrottleTimeMs)
+	binary.BigEndian.PutUint32(buf[14+7*(apiKeyCount-1):], uint32(r.Body.ThrottleTimeMs))
+	buf[18+7*(apiKeyCount-1)] = 0
+
 	fmt.Println("buf:", buf)
 	b = make([]byte, 4)
 	binary.BigEndian.PutUint32(b, uint32(len(buf)))
