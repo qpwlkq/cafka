@@ -47,7 +47,7 @@ func Handle(request model.Request) ([]byte, error) {
 					CorrelationId: request.Header.CorrelationId,
 				},
 				Body: api_versions.Body{
-					ErrorCode: 0,
+					ErrorCode: 66,
 					ApiKeys: []api_versions.ApiKey{
 						{
 							ApiKey:     18,

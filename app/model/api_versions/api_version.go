@@ -28,11 +28,12 @@ type ApiKey struct {
 }
 
 func (r Response) ToByte() (b []byte) {
-	buf := make([]byte, 25)
+	buf := make([]byte, 28)
 	binary.BigEndian.PutUint32(buf, uint32(r.Header.CorrelationId))
 	binary.BigEndian.PutUint16(buf[4:], uint16(r.Body.ErrorCode))
 	apiKeyCount := len(r.Body.ApiKeys)
-	buf[6] = byte(apiKeyCount)
+	buf[6] = 2
+	fmt.Println("apiKeyCount: ", apiKeyCount)
 	for i := 0; i < apiKeyCount; i++ {
 		binary.BigEndian.PutUint16(buf[7+6*i:], uint16(r.Body.ApiKeys[0].ApiKey))
 		binary.BigEndian.PutUint16(buf[7+6*i:], uint16(r.Body.ApiKeys[0].MinVersion))
