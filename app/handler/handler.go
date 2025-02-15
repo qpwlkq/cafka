@@ -25,10 +25,12 @@ func Handle(request model.Request) ([]byte, error) {
 				},
 				Body: api_versions.Body{
 					ErrorCode: 35,
-					ApiKeys: api_versions.ApiKeys{
-						ApiKey:     18,
-						MinVersion: 3,
-						MaxVersion: 4,
+					ApiKeys: []api_versions.ApiKey{
+						{
+							ApiKey:     18,
+							MinVersion: 3,
+							MaxVersion: 4,
+						},
 					},
 					ThrottleTimeMs: 0,
 				},
@@ -40,10 +42,12 @@ func Handle(request model.Request) ([]byte, error) {
 				},
 				Body: api_versions.Body{
 					ErrorCode: 0,
-					ApiKeys: api_versions.ApiKeys{
-						ApiKey:     18,
-						MinVersion: 3,
-						MaxVersion: 4,
+					ApiKeys: []api_versions.ApiKey{
+						{
+							ApiKey:     18,
+							MinVersion: 3,
+							MaxVersion: 4,
+						},
 					},
 					ThrottleTimeMs: 0,
 				},
