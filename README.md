@@ -2,6 +2,9 @@
 
 BTW, Highly recommend the [exercism.org](https://exercism.org/dashboard)
 
-References:  
+Doc:  
 1. [kafka protocol doc](https://kafka.apache.org/protocol.html)
-2. [什么是大端序和小端序，为什么要有字节序？](https://zhuanlan.zhihu.com/p/352145413)
+
+Doing:
+1. 完善kafka协议类型的序列化方法
+2. 增加protocol API支持
