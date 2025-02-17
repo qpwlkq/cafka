@@ -4,19 +4,32 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/codecrafters-io/kafka-starter-go/app/common"
 	"github.com/codecrafters-io/kafka-starter-go/app/model"
 )
 
-/*
-ApiVersions Response (Version: 4) => error_code [api_keys] throttle_time_ms TAG_BUFFER
-  error_code => INT16
-  api_keys => api_key min_version max_version TAG_BUFFER
-    api_key => INT16
-    min_version => INT16
-    max_version => INT16
+/**
+DescribeTopicPartitions Response (Version: 0) => throttle_time_ms [topics] next_cursor TAG_BUFFER
   throttle_time_ms => INT32
-*/
+  topics => error_code name topic_id is_internal [partitions] topic_authorized_operations TAG_BUFFER
+    error_code => INT16
+    name => COMPACT_NULLABLE_STRING
+    topic_id => UUID
+    is_internal => BOOLEAN
+    partitions => error_code partition_index leader_id leader_epoch [replica_nodes] [isr_nodes] [eligible_leader_replicas] [last_known_elr] [offline_replicas] TAG_BUFFER
+      error_code => INT16
+      partition_index => INT32
+      leader_id => INT32
+      leader_epoch => INT32
+      replica_nodes => INT32
+      isr_nodes => INT32
+      eligible_leader_replicas => INT32
+      last_known_elr => INT32
+      offline_replicas => INT32
+    topic_authorized_operations => INT32
+  next_cursor => topic_name partition_index TAG_BUFFER
+    topic_name => COMPACT_STRING
+    partition_index => INT32
+**/
 
 type Response struct {
 	MessageSize int32
@@ -29,15 +42,20 @@ type Header struct {
 }
 
 type Body struct {
-	ErrorCode      int16
-	ApiKeys        []ApiKey
 	ThrottleTimeMs int32
+	Topic Topic
+	NextCursor NextCursor
 }
 
-type ApiKey struct {
+type Topic struct {
 	ApiKey     int16
 	MinVersion int16
 	MaxVersion int16
+}
+
+type NextCursor struct {
+	TopicName COMPACT_STRING
+	PartitionIndex int32
 }
 
 func (r Response) ToByte() (b []byte) {
@@ -68,50 +86,10 @@ func (r Response) ToByte() (b []byte) {
 func Handle(request model.Request) ([]byte, error) {
 	fmt.Println("correlationId:", request.Header.CorrelationId, " ", request.Header.RequestApiVersion)
 	var apiVersionResponse Response
-	if request.Header.RequestApiVersion > 4 || request.Header.RequestApiVersion < 0 {
-		apiVersionResponse = Response{
-			Header: Header{
-				CorrelationId: request.Header.CorrelationId,
-			},
-			Body: Body{
-				ErrorCode: common.INVALID_REQUEST_API_VERSION,
-				ApiKeys: []ApiKey{
-					{
-						ApiKey:     common.ApiVersions,
-						MinVersion: 3,
-						MaxVersion: 4,
-					},
-					{
-						ApiKey:     common.DescribeTopicPartitions,
-						MinVersion: 0,
-						MaxVersion: 0,
-					},
-				},
-				ThrottleTimeMs: 666,
-			},
-		}
+	if request.Header.RequestApiVersion != 0 {
+		
 	} else {
-		apiVersionResponse = Response{
-			Header: Header{
-				CorrelationId: request.Header.CorrelationId,
-			},
-			Body: Body{
-				ErrorCode: common.SUCCESS,
-				ApiKeys: []ApiKey{
-					{
-						ApiKey:     common.ApiVersions,
-						MinVersion: 3,
-						MaxVersion: 4,
-					},
-					{
-						ApiKey:     common.DescribeTopicPartitions,
-						MinVersion: 0,
-						MaxVersion: 0,
-					},
-				},
-				ThrottleTimeMs: 666,
-			},
-		}
+		
 	}
 	fmt.Println("Handle ApiVersions api")
 	return apiVersionResponse.ToByte(), nil
