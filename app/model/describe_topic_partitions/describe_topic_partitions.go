@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
+	"github.com/codecrafters-io/kafka-starter-go/app/common"
 	"github.com/codecrafters-io/kafka-starter-go/app/model"
 )
 
@@ -43,43 +44,40 @@ type Header struct {
 
 type Body struct {
 	ThrottleTimeMs int32
-	Topic Topic
+	Topics []Topic
 	NextCursor NextCursor
 }
 
 type Topic struct {
-	ApiKey     int16
-	MinVersion int16
-	MaxVersion int16
+	ErrorCode int16
+	Name common.COMPACT_NULLABLE_STRING 
+	TopicId common.UUID
+	IsInternal common.BOOLEAN
+	Partitions []Partition
+	TopicAuthorizedOperations int32
+}
+
+type Partition struct {
+	ErrorCode int16
+	PartitionIndex int32
+	LeaderId int32
+	LeaderEpoch int32
+	ReplicaNodes int32
+	IsrNodes int32
+	EligibleLeaderReplicas int32
+	LastKnownElr int32
+	OfflineReplicas int32
 }
 
 type NextCursor struct {
-	TopicName COMPACT_STRING
+	TopicName common.COMPACT_STRING
 	PartitionIndex int32
 }
 
 func (r Response) ToByte() (b []byte) {
-	buf := make([]byte, 26)
+	buf := []byte{}
 	binary.BigEndian.PutUint32(buf, uint32(r.Header.CorrelationId))
-	binary.BigEndian.PutUint16(buf[4:], uint16(r.Body.ErrorCode))
-	apiKeyCount := len(r.Body.ApiKeys)
-	buf[6] = byte(apiKeyCount + 1)
-	fmt.Println("apiKeyCount: ", apiKeyCount)
-	for i := 0; i < apiKeyCount; i++ {
-		binary.BigEndian.PutUint16(buf[7+7*i:], uint16(r.Body.ApiKeys[i].ApiKey))
-		binary.BigEndian.PutUint16(buf[9+7*i:], uint16(r.Body.ApiKeys[i].MinVersion))
-		binary.BigEndian.PutUint16(buf[11+7*i:], uint16(r.Body.ApiKeys[i].MaxVersion))
-		buf[13+7*i] = 0
-	}
-	fmt.Println("ThrottleTimeMs: ", r.Body.ThrottleTimeMs)
-	binary.BigEndian.PutUint32(buf[14+7*(apiKeyCount-1):], uint32(r.Body.ThrottleTimeMs))
-	buf[18+7*(apiKeyCount-1)] = 0
-
-	fmt.Println("buf:", buf)
-	b = make([]byte, 4)
-	binary.BigEndian.PutUint32(b, uint32(len(buf)))
-	b = append(b, buf...)
-	fmt.Println("b:", b)
+	binary.BigEndian.PutUint32(buf[4:], uint32(r.Body.ThrottleTimeMs))
 	return
 }
 
@@ -87,7 +85,26 @@ func Handle(request model.Request) ([]byte, error) {
 	fmt.Println("correlationId:", request.Header.CorrelationId, " ", request.Header.RequestApiVersion)
 	var apiVersionResponse Response
 	if request.Header.RequestApiVersion != 0 {
-		
+		apiVersionResponse = // The `Response` struct in the code defines the structure of the response that
+		// will be sent back by the API endpoint handling the request. It contains three
+		// main fields:
+		Response{
+			Header: Header{
+				CorrelationId: request.Header.CorrelationId,
+			},
+			Body: Body{
+				ThrottleTimeMs: 666,
+				Topics: []Topic{
+					{
+						ErrorCode: common.UNKNOWN_TOPIC_OR_PARTITION,
+						Name: "topic 123",
+						TopicId: "00000000-0000-0000-0000-000000000000",
+						Partitions: []Partition{},
+					},
+				},
+				NextCursor: NextCursor{},
+			},
+		}
 	} else {
 		
 	}
