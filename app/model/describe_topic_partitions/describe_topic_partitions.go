@@ -89,6 +89,7 @@ func (r Response) ToByte() (b []byte) {
 func (t Topic) ToByte() (b []byte) {
 	buf := make([]byte, 10)
 	binary.BigEndian.PutUint32(buf, uint32(t.ErrorCode))
+	return
 }
 
 func Handle(request model.Request) ([]byte, error) {

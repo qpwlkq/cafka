@@ -2,6 +2,8 @@
 
 BTW, Highly recommend the [exercism.org](https://exercism.org/dashboard)
 
+Design Doc: [DOC](./design%20doc/dd.md)
+
 Doc:  
 1. [kafka protocol doc](https://kafka.apache.org/protocol.html)
 
