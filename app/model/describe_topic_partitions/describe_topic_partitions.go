@@ -75,10 +75,20 @@ type NextCursor struct {
 }
 
 func (r Response) ToByte() (b []byte) {
-	buf := []byte{}
+	buf := make([]byte, 20)
 	binary.BigEndian.PutUint32(buf, uint32(r.Header.CorrelationId))
 	binary.BigEndian.PutUint32(buf[4:], uint32(r.Body.ThrottleTimeMs))
+
+	buf[8] = byte(len(r.Body.Topics) + 1)
+	for i := 0; i < len(r.Body.Topics); i++ {
+		buf = append(buf, r.Body.Topics[i].ToByte()...)
+	}
 	return
+}
+
+func (t Topic) ToByte() (b []byte) {
+	buf := make([]byte, 10)
+	binary.BigEndian.PutUint32(buf, uint32(t.ErrorCode))
 }
 
 func Handle(request model.Request) ([]byte, error) {
